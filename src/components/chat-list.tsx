@@ -25,8 +25,16 @@ const ChatList: React.FC = () => {
   };
 
   const handleSaveEdit = (chatId: string) => {
+    const chat = chats.find(c => c.id == chatId)
+    if (!chat) return
     if (editingName.trim()) {
-      db.chats.update(chatId, { name: editingName.trim() }).catch(console.error).finally(refetch)
+      db.chats.get(chatId).then(old => {
+        if (old) {
+          db.chats.update(chatId, { name: editingName.trim() }).catch(console.error).finally(refetch)
+        } else {
+          db.chats.add({ ...chat, name: editingName.trim() }).catch(console.error).finally(refetch)
+        }
+      })
     }
     setEditingId(null);
     setEditingName('');
@@ -45,10 +53,13 @@ const ChatList: React.FC = () => {
       }).catch(console.error).finally(refetch)
   }
 
-  const handleDelete = (id: string) => {
-    db.chats.delete(id).then(() => {
-      nav({ to: '/chat', search: (prev) => ({ ...prev, chatId: chats.find(item => item.id !== id)?.id }) })
-    }).catch(console.error).finally(refetch)
+  const handleDelete = async (id: string) => {
+    db.chats.count().then(count => {
+      if (count > 1)
+        db.chats.delete(id).then(() => {
+          nav({ to: '/chat', search: (prev) => ({ ...prev, chatId: chats.find(item => item.id !== id)?.id }) })
+        }).catch(console.error).finally(refetch)
+    })
   }
 
   return (
@@ -78,8 +89,13 @@ const ChatList: React.FC = () => {
                   value={editingName}
                   onChange={(e) => setEditingName(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleSaveEdit(chat.id);
-                    if (e.key === 'Escape') handleCancelEdit();
+                    if (e.key === 'Enter') {
+                      handleSaveEdit(chat.id);
+                    }
+                    if (e.key === 'Escape') {
+                      handleCancelEdit();
+                    }
+                    e.stopPropagation()
                   }}
                   autoFocus
                   className="flex-1 w-full px-2 py-1 border border-gray-300 rounded text-sm"
@@ -120,7 +136,7 @@ const ChatList: React.FC = () => {
                   >
                     Rename
                   </button>
-                  <button
+                  {chats.length > 1 && <button
                     onClick={(e) => {
                       e.stopPropagation()
                       handleDelete(chat.id)
@@ -128,7 +144,7 @@ const ChatList: React.FC = () => {
                     className="cursor-pointer px-2 py-1 text-xs border border-gray-300 rounded hover:text-red-500 hover:border-red-500"
                   >
                     Delete
-                  </button>
+                  </button>}
                 </div>
               </>
             )}
