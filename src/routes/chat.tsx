@@ -27,7 +27,8 @@ function ChatPage() {
 
 export const Route = createFileRoute('/chat')({
   validateSearch: z.object({
-    modelId: z.number().optional()
+    modelId: z.number().optional(),
+    chatId: z.string().optional()
   }),
   component: ChatPage,
 })

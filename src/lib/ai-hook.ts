@@ -1,9 +1,8 @@
 import { useChat } from "@ai-sdk/react";
-import { ChatTransport, DirectChatTransport, generateId, ToolLoopAgent, UIMessage } from "ai";
-import { last } from "es-toolkit";
+import { ChatTransport, DirectChatTransport, ToolLoopAgent, UIMessage } from "ai";
 import { useEffect } from "react";
-import { db, useChatsList } from "./db";
-import { MODEL, useCurrentModel } from "./model";
+import { db } from "./db";
+import { MODEL, useCurrentChat, useCurrentModel } from "./model";
 
 const mapCache: { [k: number]: ChatTransport<UIMessage> } = {};
 const cacheTransport = (model: MODEL) => {
@@ -13,10 +12,9 @@ const cacheTransport = (model: MODEL) => {
 
 export const useAChat = () => {
   const model = useCurrentModel();
-  const { data } = useChatsList();
-  const lastChat = last(data ?? []);
-  const id = lastChat?.id ?? generateId();
-  const name = lastChat?.name ?? "Chat Default Name";
+  const currentChat = useCurrentChat();
+  const id = currentChat.id;
+  const name = currentChat.name;
   const chatHandler = useChat({
     id,
     transport: cacheTransport(model),
@@ -26,18 +24,18 @@ export const useAChat = () => {
       async function save() {
         const chat = await db.chats.where({ id }).first();
         const createAt = chat?.createdAt ?? Date.now();
-        await db.chats.put({ id, name, messages: opt.messages, updatedAt: Date.now(), createdAt: createAt }, [id]);
+        await db.chats.put({ id, name, messages: opt.messages, updatedAt: Date.now(), createdAt: createAt }, id);
       }
       save().catch(console.error);
     },
   });
   useEffect(() => {
-    if (chatHandler.messages.length == 0 && lastChat) {
-      chatHandler.setMessages(lastChat.messages);
+    if (chatHandler.messages.length == 0 && currentChat) {
+      chatHandler.setMessages(currentChat.messages);
     } else {
       chatHandler.setMessages([]);
     }
-  }, [lastChat]);
+  }, [currentChat]);
 
   return chatHandler;
 };

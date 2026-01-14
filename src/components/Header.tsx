@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useLocation } from '@tanstack/react-router'
 
 import {
   Home,
@@ -7,11 +7,13 @@ import {
 } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useClickAway } from 'react-use'
+import ChatList from './chat-list'
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
   const ref = useRef<HTMLElement>(null)
   useClickAway(ref, () => setIsOpen(false))
+  const path = useLocation().pathname
   return (
     <>
       <header className="fixed left-0 top-0 z-40 p-4 flex items-center bg-linear-60 from-orange-300/80 to-sky-300/80 backdrop-blur-3xl text-black shadow-lg w-full">
@@ -62,6 +64,7 @@ export default function Header() {
             <span className="font-medium">Home</span>
           </Link>
           {/* Demo Links End */}
+          {path == '/chat' && <ChatList />}
         </nav>
       </aside>
     </>
