@@ -34,7 +34,7 @@ jobs:
 
         run: |
           bun install
-          bun run build
+          bun --bun run build
 
       - name: Deploy Gh-Pages 🚀
         uses: peaceiris/actions-gh-pages@v3
