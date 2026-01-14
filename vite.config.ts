@@ -20,12 +20,6 @@ const config = defineConfig({
         autoSubfolderIndex: true,
         autoStaticPathsDiscovery: true,
       },
-      // pages: [
-      //   {
-      //     path: "/",
-      //     prerender: { enabled: true, outputPath: "/index.html" },
-      //   },
-      // ],
     }),
     viteReact({
       babel: {

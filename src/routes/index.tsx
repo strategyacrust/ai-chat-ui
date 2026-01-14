@@ -1,6 +1,7 @@
 'use client'
 
 import { models } from '@/lib/model'
+import { cn } from '@/lib/utils'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { MessageCircle, ShieldCheck } from 'lucide-react'
 
@@ -27,9 +28,9 @@ function App() {
           </div>
         </div>
       </section>
-      <section className="py-10 px-4 max-w-7xl mx-auto">
-        <div className='text-lg mb-5'>Chat with AI models form SAC providers</div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <section className={cn("py-10 px-4 max-w-xl mx-auto", { "max-w-3xl": models.length > 1, "max-w-5xl": models.length > 2 })}>
+        <div className='text-lg mb-5 text-center'>Chat with AI models from SAC providers</div>
+        <div className={cn("grid grid-cols-1 gap-6", { 'md:grid-cols-2': models.length > 1, 'lg:grid-cols-3': models.length > 2 })}>
           {models.map((model, index) => (
             <div
               key={index}
